@@ -1,0 +1,65 @@
+// Example Zuildfile
+
+/*
+  Variable Namespaces
+
+  Environment
+  env.VAR_NAME
+
+  Arguments
+  arg.ARG_NAME
+
+  Dynamic and defined variables
+  var.VAR_NAME
+ */
+
+Help {
+  title = "Example Zuildfile"
+  content = <<-EOF
+    This is the Zuildfile help section.
+    It is epic!
+  EOF
+}
+
+Arg "aarg" {
+  short = "a"
+  usage = "a test arg"
+}
+
+Arg "barg" {
+  short = "b"
+  usage = "b test arg"
+}
+
+welcome_message = "Welcome to Zuild ${env.USER}!"
+turkey_message = "Yo turkey. ${var.welcome_message}"
+name = "bacon"
+
+some_doc = <<-EOF
+  Hey this is neat ${var.name}
+  La la la
+EOF
+
+Task "clean" {
+  Sh {
+    cmd = ["echo ${var.welcome_message}"]
+  }
+}
+
+Task "task_one" {
+  require = ["clean"]
+
+  Sh {
+    cmd = ["echo Zuild executed ${arg.aarg} and ${arg.barg} env var ${env.USER}"]
+  }
+}
+
+Task "task_nacho" {
+  Sh {
+    cmd = ["echo Zuild wants a nacho"]
+  }
+}
+
+Task "default" {
+  require = ["task_one"]
+}
