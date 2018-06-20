@@ -9,6 +9,7 @@ import (
 	"github.com/solvent-io/zuild/cli"
 	"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
+	"fmt"
 )
 
 const (
@@ -38,6 +39,28 @@ func New(ui *cli.Ui, cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
 }
 
 func (z *Zuild) Run(task string) error {
+	graph := NewTaskGraph()
+	graph.Populate(z.zf.Tasks)
+
+	tasks, err := graph.Get(z.taskOrDefault(task))
+	if err != nil {
+		return err
+	}
+
+	for _, task := range tasks {
+		z.ui.Info(task.Name)
+
+		for _, action := range task.Actions(z.zf.taskIndex[task.Name]) {
+			z.ui.Info(fmt.Sprint("* ", action.Type(), " ", action.Id()))
+
+			out, err := action.Realize()
+			if err != nil {
+				return err
+			}
+
+			z.ui.Info(fmt.Sprint("  ", out))
+		}
+	}
 
 	return nil
 }

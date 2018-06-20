@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclparse"
+	"fmt"
 )
 
 const (
@@ -26,6 +27,8 @@ type ZuildFile struct {
 	Args   []*Arg   `hcl:"Arg,block"`
 	Tasks  []*Task  `hcl:"Task,block"`
 	Remain hcl.Body `hcl:",remain"`
+
+	taskIndex  map[string]map[string]int
 }
 
 func ParseZuildFile(path string) (*ZuildFileInit, error) {
@@ -53,11 +56,26 @@ func ParseZuildFile(path string) (*ZuildFileInit, error) {
 }
 
 func EvalZuildFile(zi *ZuildFileInit, ctx *hcl.EvalContext) (*ZuildFile, error) {
-	zf := &ZuildFile{}
+	zf := &ZuildFile{taskIndex: make(map[string]map[string]int)}
 
 	diag := gohcl.DecodeBody(zi.hcl.Body, ctx, zf)
 	if diag.HasErrors() {
 		return nil, diag
+	}
+
+	// Index the document
+	schema, _ := gohcl.ImpliedBodySchema(&ZuildFile{})
+	content, _ := zi.hcl.Body.Content(schema)
+
+	taskSchema, _ := gohcl.ImpliedBodySchema(&Task{})
+
+	for _, task := range content.Blocks.OfType("Task") {
+
+		taskContent, _ := task.Body.Content(taskSchema)
+		zf.taskIndex[task.Labels[0]] = make(map[string]int)
+		for _, sub := range taskContent.Blocks {
+			zf.taskIndex[task.Labels[0]][fmt.Sprint(sub.Type, ".", sub.Labels[0])] = sub.TypeRange.Start.Line
+		}
 	}
 
 	return zf, nil
