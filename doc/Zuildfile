@@ -41,10 +41,6 @@ some_doc = <<-EOF
 EOF
 
 Task "clean" {
-  Log "cleaning" {
-    message = "we are a cleaning"
-  }
-
   Sh "clean it" {
     cmd = ["echo ${var.welcome_message}"]
   }
@@ -56,17 +52,9 @@ Task "task_one" {
   Sh "task name" {
     cmd = ["echo Zuild executed ${arg.aarg} and ${arg.barg} env var ${env.USER}"]
   }
-
-  Log "snarf" {
-    message = "snarf was here"
-  }
 }
 
 Task "task_nacho" {
-  Log "bacon" {
-    message = "snarf was here"
-  }
-
   Sh "nacho" {
     cmd = ["echo Zuild wants a nacho"]
   }

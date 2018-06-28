@@ -44,6 +44,15 @@
   revision = "ad45545899c7b13c020ea92b2072220eefad42b8"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/solvent-io/zkit"
+  packages = [
+    "action",
+    "provider"
+  ]
+  revision = "a46814676d627301b8d0c5b634cbaa3595df7662"
+
+[[projects]]
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
@@ -112,6 +121,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3fc5e4d9b9bb2031950925642986e0fa7dad85d7e2fbf7eeea06cc2e77bec414"
+  inputs-digest = "a223a3b7d29d50bea836d1d93da7c144b9b5e3d3137dbac3a91482cc6a2156a6"
   solver-name = "gps-cdcl"
   solver-version = 1

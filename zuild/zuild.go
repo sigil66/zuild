@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
 	"fmt"
+	"github.com/solvent-io/zkit/provider"
+	"context"
 )
 
 const (
@@ -51,14 +53,17 @@ func (z *Zuild) Run(task string) error {
 		z.ui.Info(task.Name)
 
 		for _, action := range task.Actions(z.zf.taskIndex[task.Name]) {
-			z.ui.Info(fmt.Sprint("* ", action.Type(), " [", action.Id(), "]"))
+			z.ui.Info(fmt.Sprint("* ", action.Type(), " [", action.Key(), "]"))
 
-			out, err := action.Realize()
+			ctx := context.WithValue(context.Background(), "options", &provider.Options{})
+			prov := provider.Get(action)
+
+			_, err := prov.Realize("build", ctx)
 			if err != nil {
-				return err
+				z.ui.Fatal(err.Error())
 			}
 
-			z.ui.Info(fmt.Sprint("  -> ", out))
+			z.ui.Out("")
 		}
 	}
 
