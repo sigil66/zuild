@@ -43,6 +43,11 @@ EOF
 Task "clean" {
   Sh "clean it" {
     cmd = ["echo ${var.welcome_message}"]
+    shell = "zsh"
+    env = {
+      SNARF = "narf"
+      GARTH = "darth"
+    }
   }
 }
 
