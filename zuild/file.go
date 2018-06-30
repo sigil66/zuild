@@ -3,10 +3,11 @@ package zuild
 import (
 	"io/ioutil"
 
+	"fmt"
+
 	"github.com/hashicorp/hcl2/gohcl"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hclparse"
-	"fmt"
 )
 
 const (
@@ -14,8 +15,8 @@ const (
 )
 
 type ZuildFileInit struct {
-	Help   *Help    `hcl:"Help,block"`
-	Args   []*Arg   `hcl:"Arg,block"`
+	Help *Help  `hcl:"Help,block"`
+	Args []*Arg `hcl:"Arg,block"`
 
 	Remain hcl.Body `hcl:",remain"`
 
@@ -28,7 +29,7 @@ type ZuildFile struct {
 	Tasks  []*Task  `hcl:"Task,block"`
 	Remain hcl.Body `hcl:",remain"`
 
-	taskIndex  map[string]map[string]int
+	taskIndex map[string]map[string]int
 }
 
 func ParseZuildFile(path string) (*ZuildFileInit, error) {

@@ -50,7 +50,7 @@
     "action",
     "provider"
   ]
-  revision = "a46814676d627301b8d0c5b634cbaa3595df7662"
+  revision = "1038792a0f35365e9328038c3b7ad4d92a1e9bf9"
 
 [[projects]]
   name = "github.com/spf13/cobra"

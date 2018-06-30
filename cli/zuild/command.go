@@ -17,9 +17,9 @@ type ZuildCommand struct {
 	*cobra.Command
 	*cli.Ui
 
-	zuildFlagSet *pflag.FlagSet
-	zfFlagSet    *pflag.FlagSet
-	zuildFileInit    *zuild.ZuildFileInit
+	zuildFlagSet  *pflag.FlagSet
+	zfFlagSet     *pflag.FlagSet
+	zuildFileInit *zuild.ZuildFileInit
 }
 
 func NewZuildCommand() *ZuildCommand {
@@ -41,6 +41,7 @@ func NewZuildCommand() *ZuildCommand {
 	cmd.zuildFlagSet.BoolP("Graph", "G", false, "Graph tasks")
 	cmd.zuildFlagSet.BoolP("List", "L", false, "List tasks")
 	cmd.zuildFlagSet.StringP("Path", "P", "", "Path to Zuildfile")
+	cmd.zuildFlagSet.BoolP("Verbose", "V", false, "Verbose output")
 	cmd.Flags().AddFlagSet(cmd.zuildFlagSet)
 
 	// Bind custom usage template
