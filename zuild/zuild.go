@@ -56,14 +56,18 @@ func (z *Zuild) Run(task string) error {
 		z.ui.Info(task.Name)
 
 		for _, action := range task.Actions(z.zf.taskIndex[task.Name]) {
-			z.ui.Info(fmt.Sprint("* ", action.Type(), " [", action.Key(), "]"))
+			if action.Condition() == nil || *action.Condition() == true {
+				z.ui.Info(fmt.Sprint("* ", action.Type(), " [", action.Key(), "]"))
 
-			ctx := context.WithValue(context.Background(), "options", options)
-			prov := provider.Get(action)
+				ctx := context.WithValue(context.Background(), "options", options)
+				prov := provider.Get(action)
 
-			_, err := prov.Realize("build", ctx)
-			if err != nil {
-				z.ui.Fatal(err.Error())
+				_, err := prov.Realize("build", ctx)
+				if err != nil {
+					z.ui.Fatal(err.Error())
+				}
+			} else {
+				z.ui.Warn(fmt.Sprint("- ", action.Type(), " [", action.Key(), "]"))
 			}
 		}
 

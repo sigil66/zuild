@@ -58,6 +58,8 @@ Task "clean" {
     }
 
     cmd = ["echo ${var.welcome_message}"]
+
+    conditional = arg.aarg == "asdf"
   }
 }
 
@@ -77,7 +79,7 @@ Task "task_one" {
   }
 
   Sh "echo somedoc" {
-    cmd = ["cat <<EOF \n ${var.some_doc}"]
+    cmd = ["cat <<EOF \n${var.some_doc}"]
   }
 }
 
