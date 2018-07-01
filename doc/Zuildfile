@@ -59,7 +59,7 @@ Task "clean" {
 
     cmd = ["echo ${var.welcome_message}"]
 
-    conditional = arg.aarg == "asdf"
+    on_condition = arg.aarg == "asdf"
   }
 }
 
