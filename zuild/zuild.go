@@ -52,7 +52,7 @@ func (z *Zuild) Run(task string) error {
 		return err
 	}
 
-	for _, task := range tasks {
+	for index, task := range tasks {
 		z.ui.Info(task.Name)
 
 		for _, action := range task.Actions(z.zf.taskIndex[task.Name]) {
@@ -65,7 +65,9 @@ func (z *Zuild) Run(task string) error {
 			if err != nil {
 				z.ui.Fatal(err.Error())
 			}
+		}
 
+		if index+1 != len(tasks) {
 			z.ui.Out("")
 		}
 	}
