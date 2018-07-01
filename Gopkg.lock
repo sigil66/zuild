@@ -23,7 +23,7 @@
     "hcl/json",
     "hclparse"
   ]
-  revision = "9db880accff19d9bd953958df738ef0c02b4a311"
+  revision = "36446359d27574bf110611001414da561731b62d"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"

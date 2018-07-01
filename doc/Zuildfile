@@ -35,27 +35,47 @@ welcome_message = "Welcome to Zuild ${env.USER}!"
 turkey_message = "Yo turkey. ${var.welcome_message}"
 name = "bacon"
 
+tpl_vals = ["nacho", "bacon", "salad"]
+
 some_doc = <<-EOF
   Hey this is neat ${var.name}
   La la la
 EOF
 
+some_template = <<-EOF
+  %{ for x in var.tpl_vals }
+    - ${x ~}
+  %{ endfor }
+EOF
+
 Task "clean" {
   Sh "clean it" {
-    cmd = ["echo ${var.welcome_message}"]
     shell = "zsh"
+
     env = {
       SNARF = "narf"
       GARTH = "darth"
     }
+
+    cmd = ["echo ${var.welcome_message}"]
+  }
+}
+
+Task "task_tpl" {
+  Sh "echo tpl" {
+    cmd = ["cat <<EOF ${var.some_template}"]
   }
 }
 
 Task "task_one" {
-  require = ["clean"]
+  require = ["clean", "task_tpl"]
 
   Sh "task name" {
     cmd = ["echo Zuild executed ${arg.aarg} and ${arg.barg} env var ${env.USER}"]
+  }
+
+  Sh "echo somedoc" {
+    cmd = ["cat <<EOF ${var.some_doc}"]
   }
 }
 
