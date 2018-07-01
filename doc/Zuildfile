@@ -60,6 +60,7 @@ Task "clean" {
     cmd = ["echo ${var.welcome_message}"]
 
     on_condition = arg.aarg == "asdf"
+    allow_failure = true
   }
 }
 

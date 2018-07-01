@@ -63,8 +63,10 @@ func (z *Zuild) Run(task string) error {
 				prov := provider.Get(action)
 
 				_, err := prov.Realize("build", ctx)
-				if err != nil {
-					z.ui.Fatal(err.Error())
+				if err != nil && action.MayFail() == false {
+					z.ui.Fatal(fmt.Sprint("  ", err.Error()))
+				} else if err != nil {
+					z.ui.Error(fmt.Sprint("  ", err.Error()))
 				}
 			} else {
 				z.ui.Warn(fmt.Sprint("- ", action.Type(), " [", action.Key(), "]"))
