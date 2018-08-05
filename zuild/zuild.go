@@ -8,12 +8,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chuckpreslar/emission"
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/solvent-io/zkit/provider"
-		"github.com/spf13/cobra"
+	"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"github.com/chuckpreslar/emission"
 )
 
 const (
@@ -133,7 +133,6 @@ func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
 		"fruit": function.New(&function.Spec{
 			Type: function.StaticReturnType(cty.String),
 			Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
-
 				return cty.StringVal("fruity!"), nil
 			},
 		},
@@ -184,8 +183,9 @@ func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
 
 func (z *Zuild) options() *provider.ProviderOptions {
 	verbose, _ := z.cmd.Flags().GetBool("Verbose")
+	debug, _ := z.cmd.Flags().GetBool("Debug")
 
-	return &provider.ProviderOptions{Verbose: verbose}
+	return &provider.ProviderOptions{Debug: debug, Verbose: verbose}
 }
 
 func (z *Zuild) taskOrDefault(task string) string {

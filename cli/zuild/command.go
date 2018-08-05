@@ -143,11 +143,11 @@ func (z *ZuildCommand) run(cmd *cobra.Command, args []string) error {
 	})
 
 	zuild.On("action.error", func(message string) {
-		z.Ui.Error(fmt.Sprint("  x", message))
+		z.Ui.Error(fmt.Sprint("  x ", message))
 	})
 
 	zuild.On("action.warn", func(message string) {
-		z.Ui.Error(fmt.Sprint("  ~", message))
+		z.Ui.Warn(fmt.Sprint("  ~ ", message))
 	})
 
 	zuild.On("action.verbose.header", func(message string) {
