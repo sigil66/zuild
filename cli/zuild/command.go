@@ -124,10 +124,39 @@ func (z *ZuildCommand) setup(cmd *cobra.Command, args []string) error {
 }
 
 func (z *ZuildCommand) run(cmd *cobra.Command, args []string) error {
-	zuild, err := zuild.New(z.Ui, cmd, z.zuildFileInit)
+	zuild, err := zuild.New(cmd, z.zuildFileInit)
 	if err != nil {
 		return err
 	}
+
+	// Bind event handlers
+	zuild.On("out", func(message string) {
+		z.Ui.Out(message)
+	})
+
+	zuild.On("task.header", func(message string) {
+		z.Ui.Info(fmt.Sprint("* ", message))
+	})
+
+	zuild.On("action.header", func(message string) {
+		z.Ui.Info(fmt.Sprint("  ", message))
+	})
+
+	zuild.On("action.error", func(message string) {
+		z.Ui.Error(fmt.Sprint("  x", message))
+	})
+
+	zuild.On("action.warn", func(message string) {
+		z.Ui.Error(fmt.Sprint("  ~", message))
+	})
+
+	zuild.On("action.verbose.header", func(message string) {
+		z.Ui.Out(fmt.Sprint("  > ", message))
+	})
+
+	zuild.On("action.verbose.content", func(message string) {
+		z.Ui.Out(fmt.Sprint("    ", message))
+	})
 
 	list, _ := cmd.Flags().GetBool("List")
 

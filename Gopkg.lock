@@ -15,6 +15,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/chuckpreslar/emission"
+  packages = ["."]
+  revision = "a7ddd980baf9ec8ad3f2e6826ef9eacfe55b3f02"
+
+[[projects]]
+  branch = "master"
   name = "github.com/hashicorp/hcl2"
   packages = [
     "gohcl",
@@ -48,9 +54,10 @@
   name = "github.com/solvent-io/zkit"
   packages = [
     "action",
+    "phase",
     "provider"
   ]
-  revision = "439eb721d2320624e872e28cb7118fcf21e94bdd"
+  revision = "3505224185616eee76a307a1ad8c1f006be8726b"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -121,6 +128,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a223a3b7d29d50bea836d1d93da7c144b9b5e3d3137dbac3a91482cc6a2156a6"
+  inputs-digest = "100ffb2813fa34631279125d009d365ccbbbbb99b6a1d617ac710db55a7ff46e"
   solver-name = "gps-cdcl"
   solver-version = 1

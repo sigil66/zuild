@@ -10,9 +10,10 @@ import (
 
 	"github.com/hashicorp/hcl2/hcl"
 	"github.com/solvent-io/zkit/provider"
-	"github.com/solvent-io/zuild/cli"
-	"github.com/spf13/cobra"
+		"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
+	"github.com/chuckpreslar/emission"
 )
 
 const (
@@ -20,18 +21,23 @@ const (
 )
 
 type Zuild struct {
-	ui  *cli.Ui
 	cmd *cobra.Command
 	zf  *ZuildFile
 	ctx *hcl.EvalContext
+
+	*emission.Emitter
 }
 
-func New(ui *cli.Ui, cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
+func New(cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
 	var err error
 
 	z := &Zuild{}
-	z.ui = ui
 	z.cmd = cmd
+	z.Emitter = emission.NewEmitter()
+
+	z.ctx = &hcl.EvalContext{
+		Variables: map[string]cty.Value{},
+	}
 
 	z.zf, err = z.eval(zi)
 	if err != nil {
@@ -53,28 +59,30 @@ func (z *Zuild) Run(task string) error {
 	}
 
 	for index, task := range tasks {
-		z.ui.Info(task.Name)
+		z.Emit("task.header", task.Name)
 
 		for _, action := range task.Actions(z.zf.taskIndex[task.Name]) {
 			if action.Condition() == nil || *action.Condition() == true {
-				z.ui.Info(fmt.Sprint("* ", action.Type(), " [", action.Key(), "]"))
+				z.Emit("action.header", fmt.Sprint(action.Type(), " [", action.Key(), "]"))
 
 				ctx := context.WithValue(context.Background(), "options", options)
-				prov := provider.Get(action)
+				ctx = context.WithValue(ctx, "phase", "build")
+				prov := provider.Get(action, z.Emitter)
 
-				_, err := prov.Realize("build", ctx)
+				err := prov.Realize(ctx)
 				if err != nil && action.MayFail() == false {
-					z.ui.Fatal(fmt.Sprint("  ", err.Error()))
+					z.Emit("action.error", err.Error())
+					z.fatal()
 				} else if err != nil {
-					z.ui.Error(fmt.Sprint("  ", err.Error()))
+					z.Emit("action.error", err.Error())
 				}
 			} else {
-				z.ui.Warn(fmt.Sprint("- ", action.Type(), " [", action.Key(), "]"))
+				z.Emit("action.warn", fmt.Sprint(action.Type(), " [", action.Key(), "]"))
 			}
 		}
 
 		if index+1 != len(tasks) {
-			z.ui.Out("")
+			z.Emit("out", "")
 		}
 	}
 
@@ -83,14 +91,14 @@ func (z *Zuild) Run(task string) error {
 
 func (z *Zuild) List() error {
 	if z.zf.Help.Title != "" {
-		z.ui.Out(z.zf.Help.Title)
-		z.ui.Out("")
+		z.Emit("out", z.zf.Help.Title)
+		z.Emit("out", "")
 	}
 
-	z.ui.Out("Tasks:")
+	z.Emit("out", "Tasks:")
 
 	for _, task := range z.zf.Tasks {
-		z.ui.Out(task.Name)
+		z.Emit("out", task.Name)
 	}
 
 	return nil
@@ -98,11 +106,11 @@ func (z *Zuild) List() error {
 
 func (z *Zuild) Graph(task string) error {
 	if z.zf.Help.Title != "" {
-		z.ui.Out(z.zf.Help.Title)
-		z.ui.Out("")
+		z.Emit("out", z.zf.Help.Title)
+		z.Emit("out", "")
 	}
 
-	z.ui.Out("Tasks:")
+	z.Emit("out", "Tasks:")
 
 	graph := NewTaskGraph()
 	graph.Populate(z.zf.Tasks)
@@ -113,15 +121,23 @@ func (z *Zuild) Graph(task string) error {
 	}
 
 	for _, task := range tasks {
-		z.ui.Out(task.Name)
+		z.Emit("out", task.Name)
 	}
 
 	return nil
 }
 
 func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
-	z.ctx = &hcl.EvalContext{
-		Variables: map[string]cty.Value{},
+	// Add a test function
+	z.ctx.Functions = map[string]function.Function{
+		"fruit": function.New(&function.Spec{
+			Type: function.StaticReturnType(cty.String),
+			Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+
+				return cty.StringVal("fruity!"), nil
+			},
+		},
+		),
 	}
 
 	// Populate arg namespace
@@ -166,10 +182,10 @@ func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
 	return EvalZuildFile(zi, z.ctx)
 }
 
-func (z *Zuild) options() *provider.Options {
+func (z *Zuild) options() *provider.ProviderOptions {
 	verbose, _ := z.cmd.Flags().GetBool("Verbose")
 
-	return &provider.Options{Verbose: verbose}
+	return &provider.ProviderOptions{Verbose: verbose}
 }
 
 func (z *Zuild) taskOrDefault(task string) string {
@@ -178,4 +194,13 @@ func (z *Zuild) taskOrDefault(task string) string {
 	}
 
 	return task
+}
+
+func (z *Zuild) cleanup() {
+
+}
+
+func (z *Zuild) fatal() {
+	z.cleanup()
+	os.Exit(1)
 }

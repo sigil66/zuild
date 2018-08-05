@@ -37,6 +37,13 @@ name = "bacon"
 
 tpl_vals = ["nacho", "bacon", "salad"]
 
+object = {
+  bacon = "narf"
+  iron = "butter"
+}
+
+tuple = [{taco = "nacho"}, {bacon = "eat"}]
+
 some_doc = <<-EOF
   Hey this is neat ${var.name}
   La la la
@@ -90,6 +97,19 @@ Task "task_nacho" {
   }
 }
 
+Task "test_function" {
+  require = ["clean"]
+  Sh "nacho" {
+    cmd = ["echo Zuild wants a ${fruit()}"]
+  }
+  Sh "object" {
+    cmd = ["echo Zuild wants a ${var.object.bacon}"]
+  }
+  Sh "tuple" {
+    cmd = ["echo Zuild wants a ${var.tuple[1].bacon}"]
+  }
+}
+
 Task "default" {
-  require = ["task_one"]
+  require = ["task_one", "test_function"]
 }
