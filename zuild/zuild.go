@@ -21,10 +21,10 @@ const (
 )
 
 type Zuild struct {
-	cmd *cobra.Command
 	zf  *ZuildFile
 	ctx *hcl.EvalContext
 
+	options *provider.ProviderOptions
 	*emission.Emitter
 }
 
@@ -32,17 +32,21 @@ func New(cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
 	var err error
 
 	z := &Zuild{}
-	z.cmd = cmd
 	z.Emitter = emission.NewEmitter()
 
 	z.ctx = &hcl.EvalContext{
 		Variables: map[string]cty.Value{},
 	}
 
-	z.zf, err = z.eval(zi)
+	z.zf, err = z.eval(zi, cmd)
 	if err != nil {
 		return nil, err
 	}
+
+	verbose, _ := cmd.Flags().GetBool("Verbose")
+	debug, _ := cmd.Flags().GetBool("Debug")
+
+	z.options = &provider.ProviderOptions{Debug: debug, Verbose: verbose}
 
 	return z, nil
 }
@@ -50,8 +54,6 @@ func New(cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
 func (z *Zuild) Run(task string) error {
 	graph := NewTaskGraph()
 	graph.Populate(z.zf.Tasks)
-
-	options := z.options()
 
 	tasks, err := graph.Get(z.taskOrDefault(task))
 	if err != nil {
@@ -65,7 +67,7 @@ func (z *Zuild) Run(task string) error {
 			if action.Condition() == nil || *action.Condition() == true {
 				z.Emit("action.header", fmt.Sprint(action.Type(), " [", action.Key(), "]"))
 
-				ctx := context.WithValue(context.Background(), "options", options)
+				ctx := context.WithValue(context.Background(), "options", z.options)
 				ctx = context.WithValue(ctx, "phase", "build")
 				prov := provider.Get(action, z.Emitter)
 
@@ -127,7 +129,8 @@ func (z *Zuild) Graph(task string) error {
 	return nil
 }
 
-func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
+func (z *Zuild) eval(zi *ZuildFileInit, cmd *cobra.Command) (*ZuildFile, error) {
+
 	// Add a test function
 	z.ctx.Functions = map[string]function.Function{
 		"fruit": function.New(&function.Spec{
@@ -142,7 +145,7 @@ func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
 	// Populate arg namespace
 	args := make(map[string]cty.Value)
 	for _, arg := range zi.Args {
-		val, _ := z.cmd.Flags().GetString(arg.Name)
+		val, _ := cmd.Flags().GetString(arg.Name)
 		args[arg.Name] = cty.StringVal(val)
 	}
 	z.ctx.Variables["arg"] = cty.ObjectVal(args)
@@ -179,13 +182,6 @@ func (z *Zuild) eval(zi *ZuildFileInit) (*ZuildFile, error) {
 	}
 
 	return EvalZuildFile(zi, z.ctx)
-}
-
-func (z *Zuild) options() *provider.ProviderOptions {
-	verbose, _ := z.cmd.Flags().GetBool("Verbose")
-	debug, _ := z.cmd.Flags().GetBool("Debug")
-
-	return &provider.ProviderOptions{Debug: debug, Verbose: verbose}
 }
 
 func (z *Zuild) taskOrDefault(task string) string {
