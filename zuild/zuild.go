@@ -78,7 +78,7 @@ func (z *Zuild) Run(task string) error {
 				z.Emit("action.header", fmt.Sprint(action.Type(), " [", action.Key(), "]"))
 
 				ctx := context.WithValue(context.Background(), "options", z.options)
-				ctx = context.WithValue(ctx, "phase", "build")
+				ctx = context.WithValue(ctx, "phase", phase.BUILD)
 				prov := providerFactory.Get(action)
 
 				err := prov.Realize(ctx)
