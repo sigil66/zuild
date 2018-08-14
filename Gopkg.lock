@@ -54,10 +54,9 @@
   name = "github.com/solvent-io/zkit"
   packages = [
     "action",
-    "phase",
     "provider"
   ]
-  revision = "3505224185616eee76a307a1ad8c1f006be8726b"
+  revision = "235f0d06fe05e3b675cfc8d6d192ebe9b5888ef2"
 
 [[projects]]
   name = "github.com/spf13/cobra"

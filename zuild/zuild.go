@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
+	"github.com/solvent-io/zuild/phase"
 )
 
 const (
@@ -24,7 +25,7 @@ type Zuild struct {
 	zf  *ZuildFile
 	ctx *hcl.EvalContext
 
-	options *provider.ProviderOptions
+	options *provider.Options
 	*emission.Emitter
 }
 
@@ -46,12 +47,21 @@ func New(cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
 	verbose, _ := cmd.Flags().GetBool("Verbose")
 	debug, _ := cmd.Flags().GetBool("Debug")
 
-	z.options = &provider.ProviderOptions{Debug: debug, Verbose: verbose}
+	z.options = &provider.Options{Debug: debug, Verbose: verbose}
 
 	return z, nil
 }
 
 func (z *Zuild) Run(task string) error {
+	providerFactory := provider.New(
+		map[string]map[string]string{
+			"Sh": {
+				phase.BUILD: "exec",
+			},
+		},
+		z.Emitter,
+	)
+
 	graph := NewTaskGraph()
 	graph.Populate(z.zf.Tasks)
 
@@ -69,7 +79,7 @@ func (z *Zuild) Run(task string) error {
 
 				ctx := context.WithValue(context.Background(), "options", z.options)
 				ctx = context.WithValue(ctx, "phase", "build")
-				prov := provider.Get(action, z.Emitter)
+				prov := providerFactory.Get(action)
 
 				err := prov.Realize(ctx)
 				if err != nil && action.MayFail() == false {
