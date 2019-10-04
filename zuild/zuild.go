@@ -10,11 +10,11 @@ import (
 
 	"github.com/chuckpreslar/emission"
 	"github.com/hashicorp/hcl2/hcl"
-	"github.com/solvent-io/zkit/provider"
+	"github.com/sigil66/zkit/provider"
 	"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"github.com/solvent-io/zuild/phase"
+	"github.com/sigil66/zuild/phase"
 )
 
 const (
@@ -53,14 +53,12 @@ func New(cmd *cobra.Command, zi *ZuildFileInit) (*Zuild, error) {
 }
 
 func (z *Zuild) Run(task string) error {
-	providerFactory := provider.New(
-		map[string]map[string]string{
-			"Sh": {
-				phase.BUILD: "exec",
-			},
-		},
-		z.Emitter,
-	)
+	providerFactory := provider.New(z.Emitter)
+	providerFactory.
+		Register("Sh", provider.NewShUnix)
+
+	providerFactory.
+		On("Sh", phase.BUILD, "run")
 
 	graph := NewTaskGraph()
 	graph.Populate(z.zf.Tasks)

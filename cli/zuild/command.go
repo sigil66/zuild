@@ -7,8 +7,8 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/solvent-io/zuild/cli"
-	"github.com/solvent-io/zuild/zuild"
+	"github.com/sigil66/zuild/cli"
+	"github.com/sigil66/zuild/zuild"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
