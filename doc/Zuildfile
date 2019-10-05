@@ -71,14 +71,6 @@ Task "clean" {
   }
 }
 
-Task "task_tpl" {
-  require = ["clean"]
-
-  Sh "echo tpl" {
-    cmd = ["cat <<EOF ${var.some_template}"]
-  }
-}
-
 Task "task_one" {
   require = ["clean", "task_tpl"]
 
@@ -88,6 +80,14 @@ Task "task_one" {
 
   Sh "echo somedoc" {
     cmd = ["cat <<EOF \n${var.some_doc}"]
+  }
+}
+
+Task "task_tpl" {
+  require = ["clean"]
+
+  Sh "echo tpl" {
+    cmd = ["cat <<EOF ${var.some_template}"]
   }
 }
 
