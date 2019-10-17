@@ -99,6 +99,7 @@ Task "task_nacho" {
 
 Task "test_function" {
   require = ["clean"]
+
   Sh "nacho" {
     cmd = ["echo Zuild wants a ${fruit()}"]
   }
