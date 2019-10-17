@@ -3,7 +3,7 @@ package zuild
 import (
 	"sort"
 
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
 	"github.com/sigil66/zkit/action"
 	"gonum.org/v1/gonum/graph"
 )

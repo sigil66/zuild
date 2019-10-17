@@ -1,15 +1,16 @@
 package zuild
 
 import (
+	"sort"
+
 	"gonum.org/v1/gonum/graph"
 	"gonum.org/v1/gonum/graph/simple"
 	"gonum.org/v1/gonum/graph/topo"
-	"sort"
 )
 
 type TaskGraph struct {
-	graph     *simple.DirectedGraph
-	root      graph.Node
+	graph *simple.DirectedGraph
+	root  graph.Node
 
 	docIndex  map[graph.Node]int
 	nodeIndex map[graph.Node]*Task
@@ -75,6 +76,6 @@ func (t *TaskGraph) addEdges(task *Task) {
 
 func (t *TaskGraph) sortStable(nodes []graph.Node) {
 	sort.SliceStable(nodes, func(i, j int) bool {
-		return t.docIndex[nodes[i]] <  t.docIndex[nodes[j]]
+		return t.docIndex[nodes[i]] < t.docIndex[nodes[j]]
 	})
 }

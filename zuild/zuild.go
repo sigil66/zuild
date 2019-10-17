@@ -9,12 +9,12 @@ import (
 	"fmt"
 
 	"github.com/chuckpreslar/emission"
-	"github.com/hashicorp/hcl2/hcl"
+	"github.com/hashicorp/hcl/v2"
 	"github.com/sigil66/zkit/provider"
+	"github.com/sigil66/zuild/phase"
 	"github.com/spf13/cobra"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
-	"github.com/sigil66/zuild/phase"
 )
 
 const (
